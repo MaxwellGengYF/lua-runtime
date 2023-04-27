@@ -12,9 +12,9 @@ std::vector<std::byte> compile(const char* str) {
 	lua_dump(
 		L, [](lua_State* L, const void* p, size_t sz, void* ud) -> int {
 			auto& bytes = *reinterpret_cast<std::vector<std::byte>*>(ud);
-            auto idx = bytes.size();
-            bytes.resize(idx + sz);
-            memcpy(bytes.data() + idx, p, sz);
+			auto idx = bytes.size();
+			bytes.resize(idx + sz);
+			memcpy(bytes.data() + idx, p, sz);
 			return 0;
 		},
 		&bytes, true);
@@ -23,11 +23,11 @@ std::vector<std::byte> compile(const char* str) {
 }
 
 int main() {
-    // execyte string directly is also fine
+	// execyte string directly is also fine
 	// luaL_dostring(L, R"(print ("hello world"))");
 
 	auto bytes = compile(R"(print ("hello world"))");
-    std::cout << "compiled size: " << bytes.size() << '\n';
+	std::cout << "compiled size: " << bytes.size() << '\n';
 
 	// Create new Lua state and load the lua libraries
 	lua_State* L = luaL_newstate();
