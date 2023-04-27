@@ -18,6 +18,7 @@ if is_arch("x64", "x86_64", "arm64") then
 		set_targetdir("bin/release")
 	end
 	includes("src")
+	includes("ext/mimalloc")
 else
 	target("_lua_illegal_env")
 	set_kind("phony")
