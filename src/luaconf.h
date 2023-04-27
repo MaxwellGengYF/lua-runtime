@@ -249,17 +249,23 @@
 ** the libraries, you may want to use the following definition (define
 ** LUA_BUILD_AS_DLL to get it).
 */
+#if defined(__cplusplus)
+#define LUA_EXTERN extern "C"
+#else
+#define LUA_EXTERN extern
+#endif
+
 #if defined(LUA_BUILD_AS_DLL) /* { */
 
 #if defined(LUA_CORE) || defined(LUA_LIB) /* { */
-#define LUA_API __declspec(dllexport)
+#define LUA_API LUA_EXTERN __declspec(dllexport)
 #else /* }{ */
-#define LUA_API __declspec(dllimport)
+#define LUA_API LUA_EXTERN __declspec(dllimport)
 #endif /* } */
 
 #else /* }{ */
 
-#define LUA_API extern
+#define LUA_API LUA_EXTERN
 
 #endif /* } */
 
@@ -285,9 +291,17 @@
 */
 #if defined(__GNUC__) && ((__GNUC__ * 100 + __GNUC_MINOR__) >= 302) && \
 	defined(__ELF__) /* { */
-#define LUAI_FUNC __attribute__((visibility("internal"))) extern
+#define LUAI_FUNC __attribute__((visibility("internal"))) LUA_EXTERN
 #else /* }{ */
-#define LUAI_FUNC extern
+#if LUA_BUILD_AS_DLL
+#if defined(LUA_CORE) || defined(LUA_LIB)
+#define LUAI_FUNC LUA_EXTERN __declspec(dllexport)
+#else
+#define LUAI_FUNC LUA_EXTERN __declspec(dllimport)
+#endif
+#else
+#define LUAI_FUNC LUA_EXTERN
+#endif
 #endif /* } */
 
 #define LUAI_DDEC(dec) LUAI_FUNC dec

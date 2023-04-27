@@ -1,0 +1,5 @@
+local libc = require("test_libc")
+print("input: 3, 6")
+local a, b = libc.c_swap(3,6)
+print("output: " .. tostring(a) .. ", " .. tostring(b))
+print("sin(0.5): " .. tostring(libc.mysin(0.5)))

@@ -115,7 +115,7 @@ l_noret luaM_toobig(lua_State* L) {
 /*
 ** Free memory
 */
-void luaM_free_(lua_State* L, void* block, size_t osize) {
+LUA_API void luaM_free_(lua_State* L, void* block, size_t osize) {
 	global_State* g = G(L);
 	lua_assert((osize == 0) == (block == NULL));
 	(*g->frealloc)(g->ud, block, osize, 0);
