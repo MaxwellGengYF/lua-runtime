@@ -1,5 +1,6 @@
 #include <lua.hpp>
 #include <math.h>
+#include <string>
 #ifdef _MSC_VER
 #define LIBC_EXTERN extern "C" __declspec(dllexport)
 #else
@@ -25,10 +26,18 @@ static int my_sin(lua_State* L) {
 	return 1;
 }
 
+static int test_string(lua_State* L) {
+	std::string str{luaL_checkstring(L, 1)};
+	str += " from c function";
+	lua_pushstring(L, str.c_str());
+	return 1;
+}
+
 //library to be registered
 static const luaL_Reg mylib[] = {
 	{"c_swap", c_swap},
 	{"mysin", my_sin}, /* names can be different */
+	{"test_string", test_string},
 	{nullptr, nullptr} /* sentinel */
 };
 

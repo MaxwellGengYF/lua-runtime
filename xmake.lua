@@ -8,6 +8,12 @@ set_default("bin")
 set_showmenu(true)
 option_end()
 
+option("lua_enable_tests")
+set_values(true, false)
+set_default(false)
+set_showmenu(true)
+option_end()
+
 option("_lua_bin_dir")
 set_default(false)
 set_showmenu(false)
@@ -41,9 +47,11 @@ if is_arch("x64", "x86_64", "arm64") then
 	if bin_dir then
 		set_targetdir(bin_dir)
 	end
-	includes("tests")
 	includes("ext/mimalloc")
 	includes("src")
+	if get_config("lua_enable_tests") then		
+		includes("tests")
+	end
 else
 	target("_lua_illegal_env")
 	set_kind("phony")
