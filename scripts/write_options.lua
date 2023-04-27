@@ -20,6 +20,10 @@ local function find_process_path(process)
 	return nil
 end
 
+local function find_clangcl()
+	return find_process_path("clang-cl.exe") ~= nil
+end
+
 local function sort_key(map, func)
 	local keys = {}
 	for k, v in pairs(map) do
@@ -76,19 +80,30 @@ function main(...)
 		args["toolchain"] = nil
 		if toolchain == "llvm" then
 			sdk_path = find_llvm()
+		elseif toolchain == "clang-cl" then
+			sdk_path = find_clangcl()
 		end
 	else
-		sdk_path = find_llvm()
-		if sdk_path then
-			toolchain = "llvm"
-		elseif my_is_host("windows") then
-			toolchain = "msvc"
+		local is_win = my_is_host("windows")
+		-- llvm first
+		if is_win then
+			toolchain = "clang-cl"
+			sdk_path = find_clangcl()
 		else
-			toolchain = "gcc"
+			toolchain = "llvm"
+			sdk_path = find_llvm()
+		end
+
+		if not sdk_path then
+			if is_win then
+				toolchain = "msvc"
+			else
+				toolchain = "gcc"
+			end
 		end
 	end
 	sb:add("\ttoolchain = \""):add(toolchain):add("\",\n")
-	if sdk_path then
+	if toolchain == "llvm" and sdk_path then
 		sb:add("\tsdk = \""):add(sdk_path):add("\",\n")
 	end
 	sb:add("}\n")
