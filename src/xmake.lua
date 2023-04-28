@@ -12,6 +12,14 @@ add_deps("mimalloc")
 add_files("lua/*.c")
 target_end()
 
+target("lua_libc")
+_config_project({
+	project_kind = "shared"
+})
+add_deps("lua-lib")
+add_files("libc/*.cpp")
+target_end()
+
 local function lua_target(name, kind, file)
 	target(name)
 	_config_project({
