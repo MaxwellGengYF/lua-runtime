@@ -1,5 +1,12 @@
 #include <mimalloc.h>
 #include <lua.hpp>
+#include <filesystem>
+#include "allocator.h"
+#include <vector>
+using string = std::basic_string<char, std::char_traits<char>, allocator<char>>;
+template<typename T>
+using vector = std::vector<T, allocator<T>>;
+
 #ifdef _MSC_VER
 #define LIBC_EXTERN extern "C" __declspec(dllexport)
 #else
@@ -92,6 +99,73 @@ DEFINE_FUNC(fwrite) {
 	lua_pushboolean(L, true);
 	return 1;
 }
+DEFINE_FUNC(system) {
+	auto command = luaL_checkstring(L, 1);
+	lua_pushinteger(L, system(command));
+	return 1;
+}
+DEFINE_FUNC(all_files) {
+	auto dir = luaL_checkstring(L, 1);
+	std::filesystem::path path{dir};
+	vector<string> strs;
+	for (auto& p : std::filesystem::directory_iterator(path)) {
+		strs.emplace_back(p.path().string<char, std::char_traits<char>, allocator<char>>());
+	}
+	lua_createtable(L, strs.size(), 0);
+	size_t idx = 1;
+	for(auto&& i : strs){
+		lua_pushstring(L, i.c_str());
+		lua_rawseti(L, -2, idx);
+		++idx;
+	}
+	return 1;
+}
+DEFINE_FUNC(is_dir) {
+	auto dir = luaL_checkstring(L, 1);
+	std::filesystem::path path{dir};
+	lua_pushboolean(L, std::filesystem::is_directory(path));
+	return 1;
+}
+DEFINE_FUNC(is_file) {
+	auto dir = luaL_checkstring(L, 1);
+	std::filesystem::path path{dir};
+	lua_pushboolean(L, std::filesystem::is_regular_file(path));
+	return 1;
+}
+DEFINE_FUNC(basename) {
+	auto dir = luaL_checkstring(L, 1);
+	std::filesystem::path path{dir};
+	lua_pushstring(L, path.filename().replace_extension().string<char, std::char_traits<char>, allocator<char>>().c_str());
+	return 1;
+}
+DEFINE_FUNC(filename) {
+	auto dir = luaL_checkstring(L, 1);
+	std::filesystem::path path{dir};
+	lua_pushstring(L, path.filename().string<char, std::char_traits<char>, allocator<char>>().c_str());
+	return 1;
+}
+DEFINE_FUNC(absolute) {
+	auto dir = luaL_checkstring(L, 1);
+	std::filesystem::path path{dir};
+	lua_pushstring(L, std::filesystem::absolute(path).string<char, std::char_traits<char>, allocator<char>>().c_str());
+	return 1;
+}
+DEFINE_FUNC(relative) {
+	auto dir = luaL_checkstring(L, 1);
+	std::filesystem::path path{dir};
+	lua_pushstring(L, std::filesystem::relative(path).string<char, std::char_traits<char>, allocator<char>>().c_str());
+	return 1;
+}
+DEFINE_FUNC(extension) {
+	auto dir = luaL_checkstring(L, 1);
+	std::filesystem::path path{dir};
+	if (path.has_extension()) {
+		lua_pushstring(L, path.extension().string<char, std::char_traits<char>, allocator<char>>().c_str());
+	} else {
+		lua_pushnil(L);
+	}
+	return 1;
+}
 #define REGIST_FUNC(F) \
 	{ #F, libc_##F }
 static const luaL_Reg mylib[] = {
@@ -106,8 +180,18 @@ static const luaL_Reg mylib[] = {
 	REGIST_FUNC(strptr),
 	REGIST_FUNC(fread),
 	REGIST_FUNC(fwrite),
+	REGIST_FUNC(system),
+	REGIST_FUNC(all_files),
+	REGIST_FUNC(is_dir),
+	REGIST_FUNC(is_file),
+	REGIST_FUNC(basename),
+	REGIST_FUNC(filename),
+	REGIST_FUNC(absolute),
+	REGIST_FUNC(relative),
+	REGIST_FUNC(extension),
 	{nullptr, nullptr} /* sentinel */
 };
+
 #undef REGIST_FUNC
 #undef DEFINE_FUNC
 
