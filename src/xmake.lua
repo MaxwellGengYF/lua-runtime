@@ -7,9 +7,9 @@ if is_plat("windows") then
 		public = true
 	})
 end
-add_includedirs("./", {public = true})
+add_includedirs("lua", {public = true})
 add_deps("mimalloc")
-add_files("*.c")
+add_files("lua/*.c")
 target_end()
 
 local function lua_target(name, kind, file)
@@ -18,7 +18,7 @@ local function lua_target(name, kind, file)
 		project_kind = kind
 	})
 	add_deps("lua-lib")
-	add_files("main/" .. file)
+	add_files("lua/main/" .. file)
 	target_end()
 end
 

@@ -50,7 +50,7 @@ if is_arch("x64", "x86_64", "arm64") then
 	includes("ext/mimalloc")
 	includes("src")
 	if get_config("lua_enable_tests") then		
-		includes("tests")
+		includes("src/tests")
 	end
 else
 	target("_lua_illegal_env")

@@ -1,6 +1,8 @@
 #include <lua.hpp>
 #include <math.h>
 #include <string>
+#include <tuple>
+#include <type_traits>
 #ifdef _MSC_VER
 #define LIBC_EXTERN extern "C" __declspec(dllexport)
 #else
@@ -9,12 +11,12 @@
 
 static int c_swap(lua_State* L) {
 	//check and fetch the arguments
-	double arg1 = luaL_checknumber(L, 1);
-	double arg2 = luaL_checknumber(L, 2);
+	uint64_t arg1 = luaL_checkinteger(L, 1);
+	uint64_t arg2 = luaL_checkinteger(L, 2);
 
 	//push the results
-	lua_pushnumber(L, arg2);
-	lua_pushnumber(L, arg1);
+	lua_pushinteger(L, arg2);
+	lua_pushinteger(L, arg1);
 
 	//return number of results
 	return 2;
