@@ -17,7 +17,15 @@ _config_project({
 	project_kind = "shared"
 })
 add_deps("lua-lib")
-add_files("libc/*.cpp")
+add_files("libc/libc.cpp")
+target_end()
+
+target("lua_path")
+_config_project({
+	project_kind = "shared"
+})
+add_deps("lua-lib")
+add_files("libc/file.cpp")
 target_end()
 
 local function lua_target(name, kind, file)

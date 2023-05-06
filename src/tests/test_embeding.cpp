@@ -1,5 +1,4 @@
 #include <lua.hpp>
-#include <mimalloc.h>
 #include <iostream>
 #include <fstream>
 #include <vector>

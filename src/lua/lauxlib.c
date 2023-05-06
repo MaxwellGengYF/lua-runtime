@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <mimalloc.h>
+#include "lua_memory.h"
 
 /*
 ** This file uses only the official API of Lua.
@@ -936,10 +936,10 @@ static void* l_alloc(void* ud, void* ptr, size_t osize, size_t nsize) {
 	(void)ud;
 	(void)osize; /* not used */
 	if (nsize == 0) {
-		mi_free(ptr);
+		lua_free(ptr);
 		return NULL;
 	} else
-		return mi_realloc(ptr, nsize);
+		return lua_realloc(ptr, nsize);
 }
 
 static int panic(lua_State* L) {
