@@ -50,5 +50,6 @@ struct allocator {
 template<typename T>
 using vector = std::vector<T, lua::allocator<T>>;
 using string = std::basic_string<char, std::char_traits<char>, lua::allocator<char>>;
+using string_view = std::basic_string_view<char, std::char_traits<char>>;
 using std::span;
 }// namespace lua
