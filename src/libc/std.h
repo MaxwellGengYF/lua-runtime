@@ -8,10 +8,6 @@
 #else
 #define LUA_LIBC_EXTERN extern "C"
 #endif
-#define LUA_DEFINE_FUNC(F) int libc_##F(lua_State* L)
-#define LUA_REGIST_FUNC(F) \
-	{ #F, libc_##F }
-
 namespace lua {
 template<typename T = std::byte>
 struct allocator {
