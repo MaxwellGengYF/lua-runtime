@@ -2,6 +2,9 @@
 #include <vector>
 #include <span>
 #include <string>
+#include <variant>
+#include <tuple>
+#include <array>
 #include <lua_memory.h>
 #ifdef _MSC_VER
 #define LUA_LIBC_EXTERN extern "C" __declspec(dllexport)
@@ -43,9 +46,16 @@ struct allocator {
 	}
 };
 
-template<typename T>
-using vector = std::vector<T, lua::allocator<T>>;
+template<typename T, typename alloc = lua::allocator<T>>
+using vector = std::vector<T, alloc>;
 using string = std::basic_string<char, std::char_traits<char>, lua::allocator<char>>;
 using string_view = std::basic_string_view<char, std::char_traits<char>>;
 using std::span;
+using std::variant;
+using std::array;
+using std::visit;
+using std::tuple;
+using std::get;
+using std::apply;
+using std::pair;
 }// namespace lua
