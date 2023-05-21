@@ -35,7 +35,7 @@ struct RunLua<R(Args...)> {
 	template<typename Arg>
 	static Arg get_arg(lua_State* L, int index) {
 		using PureArg = std::remove_cvref_t<Arg>;
-		if constexpr (std::is_same_v<PureArg, char const*> || std::is_same_v<PureArg, string> || std::is_same_v<PureArg, string_view>) {
+		if constexpr (std::is_same_v<PureArg, char const*> || std::is_same_v<PureArg, string>) {
 			return PureArg{luaL_checkstring(L, index)};
 		} else if constexpr (std::is_integral_v<PureArg>) {
 			return static_cast<PureArg>(luaL_checkinteger(L, index));
@@ -81,7 +81,7 @@ struct RunLua<R(Args...)> {
 template<typename T, typename Func>
 struct FuncImpl;
 
-#define LUA_DEFINE_FUNC(lua_name, func_name)                                                 \
+#define LUA_DEFINE_FUNC(lua_name, func_name)                                                          \
 	struct _unused_type##lua_name {};                                                                 \
 	template<typename R, typename... Args>                                                            \
 	struct FuncImpl<R(Args...), _unused_type##lua_name> {                                             \
