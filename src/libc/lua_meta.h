@@ -78,51 +78,46 @@ struct RunLua<R(Args...)> {
 		++index;
 	};
 };
-template<typename T, typename Func>
+template<typename T>
 struct FuncImpl;
-
-#define LUA_DEFINE_FUNC(lua_name, func_name)                                                          \
-	struct _unused_type##lua_name {};                                                                 \
-	template<typename R, typename... Args>                                                            \
-	struct FuncImpl<R(Args...), _unused_type##lua_name> {                                             \
-		static int run(lua_State* L) {                                                                \
-			using TempType = RunLua<R(Args...)>;                                                      \
-			int index = 0;                                                                            \
-			auto get_arg_func = [&]<typename A>() {                                                   \
-				++index;                                                                              \
-				return TempType::get_arg<A>(L, index);                                                \
-			};                                                                                        \
-			auto call_func = [&] -> decltype(auto) {                                                  \
-				return apply(func_name, tuple<Args...>{get_arg_func.template operator()<Args>()...}); \
-			};                                                                                        \
-			using RetType = decltype(call_func());                                                    \
-			if constexpr (std::is_void_v<RetType>) {                                                  \
-				call_func();                                                                          \
-				return 0;                                                                             \
-			} else if constexpr (is_tuple_v<RetType>) {                                               \
-				int count = 1;                                                                        \
-				apply(                                                                                \
-					[&]<typename... Rets>(Rets&&... ret) {                                            \
-					auto d = {(TempType::process_ret(L, std::forward<Rets>(ret), count), count)...};  \
-					},                                                                                \
-					call_func());                                                                     \
-				return count;                                                                         \
-			} else if constexpr (is_pair_v<RetType>) {                                                \
-				auto ret = call_func();                                                               \
-				int index = 1;                                                                        \
-				TempType::process_ret(L, std::move(ret.first), index);                                \
-				TempType::process_ret(L, std::move(ret.second), index);                               \
-				return 1;                                                                             \
-			} else {                                                                                  \
-				int count = 1;                                                                        \
-				TempType::process_ret(L, call_func(), count);                                         \
-				return 1;                                                                             \
-			}                                                                                         \
-		}                                                                                             \
-	};                                                                                                \
-	using lua_name##_template = FuncImpl<decltype(func_name), _unused_type##lua_name>;
-
-#define LUA_REGIST_FUNC(lua_name) \
-	luaL_Reg { #lua_name, lua_name##_template::run }
+template<typename R, typename... Args>
+struct FuncImpl<R(Args...)> {
+	static int run(func_ptr_t<R(Args...)> func, lua_State* L) {
+		using TempType = RunLua<R(Args...)>;
+		int index = 0;
+		auto get_arg_func = [&]<typename A>() {
+			++index;
+			return TempType::get_arg<A>(L, index);
+		};
+		auto call_func = [&] -> decltype(auto) {
+			return apply(func, tuple<Args...>{get_arg_func.template operator()<Args>()...});
+		};
+		using RetType = decltype(call_func());
+		if constexpr (std::is_void_v<RetType>) {
+			call_func();
+			return 0;
+		} else if constexpr (is_tuple_v<RetType>) {
+			int count = 1;
+			apply(
+				[&]<typename... Rets>(Rets&&... ret) {
+				auto d = {(TempType::process_ret(L, std::forward<Rets>(ret), count), count)...};
+				},
+				call_func());
+			return count;
+		} else if constexpr (is_pair_v<RetType>) {
+			auto ret = call_func();
+			int index = 1;
+			TempType::process_ret(L, std::move(ret.first), index);
+			TempType::process_ret(L, std::move(ret.second), index);
+			return 1;
+		} else {
+			int count = 1;
+			TempType::process_ret(L, call_func(), count);
+			return 1;
+		}
+	}
+};
+#define LUA_REGIST_FUNC(lua_name, func_name) \
+	luaL_Reg { #lua_name, [](lua_State* L)->int {return FuncImpl<decltype(func_name)>::run(func_name, L);} }
 
 }// namespace lua
