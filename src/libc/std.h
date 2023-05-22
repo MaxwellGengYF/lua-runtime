@@ -50,12 +50,24 @@ template<typename T, typename alloc = lua::allocator<T>>
 using vector = std::vector<T, alloc>;
 using string = std::basic_string<char, std::char_traits<char>, lua::allocator<char>>;
 using string_view = std::basic_string_view<char, std::char_traits<char>>;
-using std::span;
-using std::variant;
-using std::array;
-using std::visit;
-using std::tuple;
-using std::get;
 using std::apply;
+using std::array;
+using std::get;
 using std::pair;
+using std::span;
+using std::tuple;
+using std::variant;
+using std::visit;
+template<typename T>
+struct func_ptr;
+template<typename R, typename... Args>
+struct func_ptr<R (*)(Args...)> {
+	using type = R (*)(Args...);
+};
+template<typename R, typename... Args>
+struct func_ptr<R(Args...)> {
+	using type = R (*)(Args...);
+};
+template<typename T>
+using func_ptr_t = func_ptr<T>::type;
 }// namespace lua
