@@ -6,6 +6,8 @@
 #include <tuple>
 #include <array>
 #include <lua_memory.h>
+#include <unordered_map>
+#include <unordered_set>
 #ifdef _MSC_VER
 #define LUA_LIBC_EXTERN extern "C" __declspec(dllexport)
 #else
@@ -70,4 +72,8 @@ struct func_ptr<R(Args...)> {
 };
 template<typename T>
 using func_ptr_t = func_ptr<T>::type;
+template<typename K, typename V, typename Hasher = std::hash<K>, typename Equal = std::equal_to<K>, typename alloc = lua::allocator<pair<K const, V>>>
+using unordered_map = std::unordered_map<K, V, Hasher, Equal, alloc>;
+template<typename K, typename Hasher = std::hash<K>, typename Equal = std::equal_to<K>, typename alloc = lua::allocator<K>>
+using unordered_set = std::unordered_set<K, Hasher, Equal, alloc>;
 }// namespace lua
